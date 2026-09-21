@@ -1,0 +1,81 @@
+---
+interface Props {
+  title: string;
+  description: string;
+}
+
+const { title, description } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content={description} />
+    <title>{title}</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  </head>
+  <body>
+    <slot />
+  </body>
+</html>
+
+<style is:global>
+  :root {
+    --color-bg: #0b0d12;
+    --color-surface: #141824;
+    --color-border: #242938;
+    --color-text: #e7e9ee;
+    --color-muted: #9aa1b4;
+    --color-accent: #6c7bff;
+    --color-accent-hover: #8390ff;
+    --max-width: 1080px;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    margin: 0;
+    font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+    background: var(--color-bg);
+    color: var(--color-text);
+    line-height: 1.6;
+  }
+
+  section {
+    padding: 5rem 1.5rem;
+  }
+
+  .wrap {
+    max-width: var(--max-width);
+    margin: 0 auto;
+  }
+
+  h1,
+  h2,
+  h3 {
+    line-height: 1.15;
+    margin: 0 0 1rem;
+  }
+
+  p {
+    margin: 0 0 1rem;
+    color: var(--color-muted);
+  }
+
+  a {
+    color: var(--color-accent);
+  }
+
+  button,
+  input {
+    font-family: inherit;
+  }
+</style>
