@@ -1,5 +1,7 @@
 ---
 import '../styles/global.css';
+import CookieConsent from '../components/ui/CookieConsent.astro';
+import { ANALYTICS_ID, CONSENT_KEY } from '../lib/site';
 
 interface Props {
   title: string;
@@ -15,6 +17,26 @@ const { title, description, noindex = false } = Astro.props;
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Google tag (gtag.js): only loaded once the visitor accepts cookies (see CookieConsent). -->
+    <script is:inline define:vars={{ ANALYTICS_ID, CONSENT_KEY }}>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () {
+        dataLayer.push(arguments);
+      };
+      window.loadAnalytics = function () {
+        if (window.analyticsLoaded) return;
+        window.analyticsLoaded = true;
+        const tag = document.createElement('script');
+        tag.async = true;
+        tag.src = 'https://www.googletagmanager.com/gtag/js?id=' + ANALYTICS_ID;
+        document.head.appendChild(tag);
+        gtag('js', new Date());
+        gtag('config', ANALYTICS_ID);
+      };
+      try {
+        if (localStorage.getItem(CONSENT_KEY) === 'granted') window.loadAnalytics();
+      } catch (e) {}
+    </script>
     <meta name="description" content={description} />
     <meta name="theme-color" content="#142b22" />
     {noindex && <meta name="robots" content="noindex, nofollow" />}
@@ -25,6 +47,7 @@ const { title, description, noindex = false } = Astro.props;
   </head>
   <body>
     <slot />
+    <CookieConsent />
     <script>
       const revealed = document.querySelectorAll('.reveal');
       if ('IntersectionObserver' in window) {
