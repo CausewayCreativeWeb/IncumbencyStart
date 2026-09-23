@@ -3,7 +3,7 @@ import SiteHeader from './SiteHeader.astro';
 import ClaimForm from './ClaimForm.astro';
 import Eyebrow from '../ui/Eyebrow.astro';
 import Heading from '../ui/Heading.astro';
-import Tag from '../ui/Tag.astro';
+import AccreditationTags from '../ui/AccreditationTags.astro';
 import Card from '../ui/Card.astro';
 ---
 
@@ -17,11 +17,7 @@ import Card from '../ui/Card.astro';
         We are giving away anti-theft laptop bags to Parliamentary staffers to protect physical data security. Claim
         yours today.
       </p>
-      <ul class="hero__tags anim-rise" style="--i: 3" aria-label="Accreditations">
-        <li><Tag>CREST Tested</Tag></li>
-        <li><Tag>Cyber Essentials Plus</Tag></li>
-        <li><Tag variant="gold">UK Data Residency</Tag></li>
-      </ul>
+      <div class="hero__tags anim-rise" style="--i: 3"><AccreditationTags /></div>
     </div>
 
     <div class="hero__form" id="claim">
@@ -93,12 +89,7 @@ import Card from '../ui/Card.astro';
   }
 
   .hero__tags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.6rem;
-    list-style: none;
-    padding: 0;
-    margin: 0.5rem 0 0;
+    margin-top: 0.5rem;
   }
 
   .hero__form {
@@ -112,6 +103,11 @@ import Card from '../ui/Card.astro';
 
     .hero__copy {
       padding-top: 0;
+    }
+
+    /* On mobile the tags sit in the about section instead. */
+    .hero__tags {
+      display: none;
     }
   }
 </style>
