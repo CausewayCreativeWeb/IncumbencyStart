@@ -88,36 +88,38 @@ import Button from '../ui/Button.astro';
 </style>
 
 <script>
+  import { CLAIM_FIELDS, validateClaim, type ClaimErrors, type ClaimField } from '../../lib/claim-validation';
+
   const form = document.getElementById('claim-form') as HTMLFormElement | null;
   const status = document.getElementById('claim-status');
-  const emailInput = form?.querySelector<HTMLInputElement>('input[name="email"]');
-  const emailError = document.getElementById(`${emailInput?.id}-error`);
 
-  // Only Parliamentary addresses can claim a bag.
-  const ALLOWED_DOMAIN = 'parliament.uk';
-  const DOMAIN_ERROR = 'Please use your @parliament.uk email address. Other email addresses can\'t claim a bag.';
-
-  function isParliamentEmail(value: string) {
-    const email = value.trim().toLowerCase();
-    const at = email.lastIndexOf('@');
-    return at > 0 && email.slice(at + 1) === ALLOWED_DOMAIN;
+  function input(name: ClaimField) {
+    return form?.querySelector<HTMLInputElement>(`input[name="${name}"]`) ?? null;
   }
 
-  function setEmailError(message: string | null) {
-    if (!emailInput || !emailError) return;
-    emailInput.closest('.field')?.classList.toggle('field--error', Boolean(message));
-    emailError.textContent = message ?? '';
-    emailError.hidden = !message;
+  function setFieldError(name: ClaimField, message: string | null) {
+    const el = input(name);
+    const error = el ? document.getElementById(`${el.id}-error`) : null;
+    if (!el || !error) return;
+    el.closest('.field')?.classList.toggle('field--error', Boolean(message));
+    error.textContent = message ?? '';
+    error.hidden = !message;
     if (message) {
-      emailInput.setAttribute('aria-invalid', 'true');
-      emailInput.setAttribute('aria-describedby', emailError.id);
+      el.setAttribute('aria-invalid', 'true');
+      el.setAttribute('aria-describedby', error.id);
     } else {
-      emailInput.removeAttribute('aria-invalid');
-      emailInput.removeAttribute('aria-describedby');
+      el.removeAttribute('aria-invalid');
+      el.removeAttribute('aria-describedby');
     }
   }
 
-  emailInput?.addEventListener('input', () => setEmailError(null));
+  function showErrors(errors: ClaimErrors) {
+    CLAIM_FIELDS.forEach((name) => setFieldError(name, errors[name] ?? null));
+    const first = CLAIM_FIELDS.find((name) => errors[name]);
+    if (first) input(first)?.focus();
+  }
+
+  CLAIM_FIELDS.forEach((name) => input(name)?.addEventListener('input', () => setFieldError(name, null)));
 
   form?.addEventListener('submit', async (event) => {
     event.preventDefault();
@@ -129,32 +131,14 @@ import Button from '../ui/Button.astro';
     const originalLabel = label?.textContent ?? '';
     const originalIcon = icon?.textContent ?? '';
     let succeeded = false;
-    const formData = new FormData(form);
-    const payload = {
-      name: String(formData.get('name') ?? ''),
-      mobile: String(formData.get('mobile') ?? ''),
-      office: String(formData.get('office') ?? ''),
-      email: String(formData.get('email') ?? ''),
-    };
 
     status.classList.remove('is-error');
     status.textContent = '';
-    setEmailError(null);
 
-    const emailRejected = Boolean(emailInput?.validity.valid) && !isParliamentEmail(payload.email);
-    if (emailRejected) setEmailError(DOMAIN_ERROR);
-
-    if (!form.checkValidity()) {
-      status.classList.add('is-error');
-      status.textContent = 'Please fill in every field with a valid email address.';
-      form.querySelector<HTMLInputElement>(':invalid')?.focus();
-      return;
-    }
-
-    if (emailRejected) {
-      emailInput?.focus();
-      return;
-    }
+    const formData = new FormData(form);
+    const { claim, errors } = validateClaim(Object.fromEntries(CLAIM_FIELDS.map((name) => [name, formData.get(name)])));
+    showErrors(errors);
+    if (Object.keys(errors).length > 0) return;
 
     button?.setAttribute('disabled', 'true');
     if (label) label.textContent = 'Sending…';
@@ -163,12 +147,13 @@ import Button from '../ui/Button.astro';
       const response = await fetch('/api/claim', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
+        body: JSON.stringify(claim),
       });
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error ?? 'Something went wrong.');
+        if (data.fields) showErrors(data.fields);
+        throw new Error(data.fields ? '' : (data.error ?? 'Something went wrong.'));
       }
 
       succeeded = true;
@@ -184,8 +169,9 @@ import Button from '../ui/Button.astro';
         if (icon) icon.textContent = originalIcon;
       }, 4000);
     } catch (error) {
-      status.classList.add('is-error');
-      status.textContent = error instanceof Error ? error.message : 'Something went wrong.';
+      const message = error instanceof Error ? error.message : 'Something went wrong.';
+      status.classList.toggle('is-error', Boolean(message));
+      status.textContent = message;
     } finally {
       if (!succeeded) {
         button?.removeAttribute('disabled');

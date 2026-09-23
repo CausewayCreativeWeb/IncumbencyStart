@@ -1,6 +1,7 @@
 import type { APIRoute } from 'astro';
 import { createHash } from 'node:crypto';
 import { Resend } from 'resend';
+import { CLAIM_FIELDS, validateClaim, type Claim } from '../../lib/claim-validation';
 
 export const prerender = false;
 
@@ -25,13 +26,6 @@ function escapeHtml(value: string) {
 function field(body: Record<string, unknown>, key: string) {
   const value = body[key];
   return typeof value === 'string' ? value.trim().slice(0, MAX_LENGTH) : '';
-}
-
-interface Claim {
-  name: string;
-  mobile: string;
-  office: string;
-  email: string;
 }
 
 // Adds or updates the claimant in the Mailchimp audience, then tags them.
@@ -117,26 +111,11 @@ export const POST: APIRoute = async ({ request }) => {
     return json({ error: 'Invalid request body.' }, 400);
   }
 
-  const claim: Claim = {
-    name: field(body, 'name'),
-    mobile: field(body, 'mobile'),
-    office: field(body, 'office'),
-    email: field(body, 'email'),
-  };
+  const { claim, errors } = validateClaim(Object.fromEntries(CLAIM_FIELDS.map((key) => [key, field(body, key)])));
+  const firstError = CLAIM_FIELDS.map((key) => errors[key]).find(Boolean);
 
-  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  const mobilePattern = /^\+?[\d\s()-]{7,20}$/;
-
-  if (!claim.name || !claim.mobile || !claim.office || !claim.email || !emailPattern.test(claim.email)) {
-    return json({ error: 'Please fill in every field with a valid email address.' }, 400);
-  }
-
-  if (claim.email.toLowerCase().split('@').pop() !== 'parliament.uk') {
-    return json({ error: "Please use your @parliament.uk email address. Other email addresses can't claim a bag." }, 400);
-  }
-
-  if (!mobilePattern.test(claim.mobile)) {
-    return json({ error: 'Please enter a valid mobile number.' }, 400);
+  if (firstError) {
+    return json({ error: firstError, fields: errors }, 400);
   }
 
   const [emailResult, mailchimpResult] = await Promise.allSettled([emailTeam(claim), addToMailchimp(claim)]);
