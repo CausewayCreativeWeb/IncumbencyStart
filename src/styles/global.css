@@ -251,15 +251,16 @@ img {
   animation-delay: calc(var(--i, 0) * 70ms + 60ms);
 }
 
-/* Scroll reveal: tied to the element entering the viewport. Browsers without
-   scroll-driven animations skip this block, so content is always visible. */
-@supports (animation-timeline: view()) {
-  .reveal {
-    animation: rise linear both;
-    animation-timing-function: var(--ease-out);
-    animation-timeline: view();
-    animation-range: entry 5% entry 55%;
-  }
+/* Scroll reveal: the same fade-up as .anim-rise, played once when the element
+   first enters the viewport (see Layout.astro). Only held back once that script
+   has run and added .js, so content is always visible without it. */
+.js .reveal {
+  animation: rise 600ms var(--ease-out) backwards paused;
+  animation-delay: calc(var(--i, 0) * 70ms + 60ms);
+}
+
+.js .reveal.is-visible {
+  animation-play-state: running;
 }
 
 @media (prefers-reduced-motion: reduce) {
