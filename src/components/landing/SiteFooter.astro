@@ -1,11 +1,12 @@
 ---
 import Logo from '../ui/Logo.astro';
+import { PRIVACY_POLICY_URL } from '../../lib/site';
 
 interface Props {
   privacyHref?: string;
 }
 
-const { privacyHref = '/privacy' } = Astro.props;
+const { privacyHref = PRIVACY_POLICY_URL } = Astro.props;
 const year = new Date().getFullYear();
 ---
 
@@ -13,7 +14,10 @@ const year = new Date().getFullYear();
   <div class="wrap site-footer__inner">
     <Logo />
     <div class="site-footer__meta">
-      <a href={privacyHref}>Privacy notice</a>
+      <a href={privacyHref} target="_blank" rel="noopener">
+        Privacy notice<span class="visually-hidden"> (opens in a new window)</span>
+      </a>
+      <button type="button" class="site-footer__link" data-cookie-settings>Cookie settings</button>
       <span>&copy; {year} Incumbency.AI</span>
     </div>
   </div>
@@ -41,12 +45,22 @@ const year = new Date().getFullYear();
     color: var(--color-text-subtle);
   }
 
-  .site-footer__meta a {
+  .site-footer__meta a,
+  .site-footer__link {
     color: inherit;
     text-decoration: none;
   }
 
-  .site-footer__meta a:hover {
+  .site-footer__link {
+    padding: 0;
+    border: 0;
+    background: none;
+    font: inherit;
+    cursor: pointer;
+  }
+
+  .site-footer__meta a:hover,
+  .site-footer__link:hover {
     color: var(--color-text);
     text-decoration: underline;
   }
