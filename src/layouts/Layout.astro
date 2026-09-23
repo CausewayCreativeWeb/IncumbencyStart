@@ -15,6 +15,15 @@ const { title, description, noindex = false } = Astro.props;
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Google tag (gtag.js) -->
+    <script is:inline async src="https://www.googletagmanager.com/gtag/js?id=G-92J1832P2B"></script>
+    <script is:inline>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-92J1832P2B');
+    </script>
     <meta name="description" content={description} />
     <meta name="theme-color" content="#142b22" />
     {noindex && <meta name="robots" content="noindex, nofollow" />}
