@@ -11,13 +11,13 @@ import Card from '../ui/Card.astro';
   <SiteHeader />
   <div class="wrap hero__grid">
     <div class="hero__copy">
-      <Eyebrow variant="badge">Claim your bag</Eyebrow>
-      <Heading level={1}>Let's make <strong>democratic data more secure.</strong></Heading>
-      <p class="hero__lead">
+      <div class="anim-rise" style="--i: 0"><Eyebrow variant="badge">Claim your bag</Eyebrow></div>
+      <Heading level={1} class="anim-rise" style="--i: 1">Let's make <strong>democratic data more secure.</strong></Heading>
+      <p class="hero__lead anim-rise" style="--i: 2">
         We are giving away anti-theft laptop bags to Parliamentary staffers to protect physical data security. Claim
         yours today.
       </p>
-      <ul class="hero__tags" aria-label="Accreditations">
+      <ul class="hero__tags anim-rise" style="--i: 3" aria-label="Accreditations">
         <li><Tag>CREST Tested</Tag></li>
         <li><Tag>Cyber Essentials Plus</Tag></li>
         <li><Tag variant="gold">UK Data Residency</Tag></li>
@@ -25,7 +25,7 @@ import Card from '../ui/Card.astro';
     </div>
 
     <div class="hero__form" id="claim">
-      <Card>
+      <Card class="anim-focus" style="--i: 3">
         <h2 class="visually-hidden">Claim your anti-theft laptop bag</h2>
         <ClaimForm />
       </Card>
@@ -36,12 +36,37 @@ import Card from '../ui/Card.astro';
 <style>
   .hero {
     position: relative;
+    isolation: isolate;
+    overflow: clip;
     padding-bottom: clamp(4rem, 3rem + 4vw, 8rem);
     border-bottom: 1px solid var(--color-border);
+    background: var(--color-bg);
+  }
+
+  /* Bokeh layer, drifts slower than the page for a gentle parallax. */
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
     background:
       linear-gradient(to bottom, rgba(20, 43, 34, 0) 0, rgba(20, 43, 34, 0.35) 12rem, var(--color-bg) 34rem),
-      url('/images/bokeh-bg.webp') center -4vw / max(100%, 1100px) auto no-repeat,
-      var(--color-bg);
+      url('/images/bokeh-bg.webp') center -4vw / max(100%, 1100px) auto no-repeat;
+    pointer-events: none;
+  }
+
+  @keyframes bokeh-drift {
+    to {
+      transform: translateY(56px);
+    }
+  }
+
+  @supports (animation-timeline: scroll()) {
+    .hero::before {
+      animation: bokeh-drift linear both;
+      animation-timeline: scroll(root);
+      animation-range: 0 800px;
+    }
   }
 
   .hero__grid {

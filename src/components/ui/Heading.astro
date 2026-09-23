@@ -4,14 +4,15 @@ interface Props {
   size?: 'display' | 'h2' | 'h3';
   class?: string;
   id?: string;
+  style?: string;
 }
 
-const { level = 2, size, class: className, id } = Astro.props;
+const { level = 2, size, class: className, id, style } = Astro.props;
 const Tag = `h${level}` as 'h1' | 'h2' | 'h3' | 'h4';
 const resolvedSize = size ?? (level === 1 ? 'display' : level === 2 ? 'h2' : 'h3');
 ---
 
-<Tag id={id} class:list={['heading', `heading--${resolvedSize}`, className]}><slot /></Tag>
+<Tag id={id} style={style} class:list={['heading', `heading--${resolvedSize}`, className]}><slot /></Tag>
 
 <style>
   .heading {

@@ -27,7 +27,7 @@ const items = [
 
 <section class="about" aria-labelledby="about-title">
   <div class="wrap about__grid">
-    <div class="about__intro">
+    <div class="about__intro reveal">
       <Eyebrow>What is Incumbency.AI?</Eyebrow>
       <Heading level={2} id="about-title">Your own private AI,<br /><strong>safe from day one.</strong></Heading>
       <Eyebrow as="p">AI-powered · Human-guided</Eyebrow>
@@ -43,7 +43,7 @@ const items = [
     <Accordion>
       {
         items.map((item, index) => (
-          <AccordionItem title={item.title} open={index === 0}>
+          <AccordionItem title={item.title} open={index === 0} class="reveal">
             <p>{item.body}</p>
           </AccordionItem>
         ))

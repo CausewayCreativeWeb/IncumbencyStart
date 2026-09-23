@@ -3,12 +3,13 @@ interface Props {
   variant?: 'glass' | 'solid';
   class?: string;
   id?: string;
+  style?: string;
 }
 
-const { variant = 'glass', class: className, id } = Astro.props;
+const { variant = 'glass', class: className, id, style } = Astro.props;
 ---
 
-<div id={id} class:list={['card', `card--${variant}`, className]}><slot /></div>
+<div id={id} style={style} class:list={['card', `card--${variant}`, className]}><slot /></div>
 
 <style>
   .card {

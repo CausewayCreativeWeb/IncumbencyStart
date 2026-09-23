@@ -58,6 +58,24 @@ import Button from '../ui/Button.astro';
     color: var(--color-danger);
   }
 
+  /* Success state: the submit button briefly confirms the claim. */
+  @keyframes claimed-pop {
+    40% {
+      transform: scale(1.02);
+    }
+  }
+
+  .claim-form :global(.btn.is-success) {
+    opacity: 1;
+    cursor: default;
+    animation: claimed-pop 420ms var(--ease-out);
+    box-shadow: var(--glow-accent);
+  }
+
+  .claim-form :global(.btn.is-success .btn__icon) {
+    transform: none;
+  }
+
   @media (max-width: 520px) {
     .claim-form {
       grid-template-columns: 1fr;
@@ -79,7 +97,10 @@ import Button from '../ui/Button.astro';
 
     const button = form.querySelector('button[type="submit"]');
     const label = button?.querySelector('.btn__label');
+    const icon = button?.querySelector('.btn__icon');
     const originalLabel = label?.textContent ?? '';
+    const originalIcon = icon?.textContent ?? '';
+    let succeeded = false;
     const formData = new FormData(form);
     const payload = {
       name: String(formData.get('name') ?? ''),
@@ -112,14 +133,26 @@ import Button from '../ui/Button.astro';
         throw new Error(data.error ?? 'Something went wrong.');
       }
 
+      succeeded = true;
       status.textContent = "Thanks — your bag is claimed. We'll be in touch shortly.";
       form.reset();
+      button?.classList.add('is-success');
+      if (label) label.textContent = 'Claimed';
+      if (icon) icon.textContent = '✓';
+      window.setTimeout(() => {
+        button?.classList.remove('is-success');
+        button?.removeAttribute('disabled');
+        if (label) label.textContent = originalLabel;
+        if (icon) icon.textContent = originalIcon;
+      }, 4000);
     } catch (error) {
       status.classList.add('is-error');
       status.textContent = error instanceof Error ? error.message : 'Something went wrong.';
     } finally {
-      button?.removeAttribute('disabled');
-      if (label) label.textContent = originalLabel;
+      if (!succeeded) {
+        button?.removeAttribute('disabled');
+        if (label) label.textContent = originalLabel;
+      }
     }
   });
 </script>

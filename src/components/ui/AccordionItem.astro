@@ -3,12 +3,14 @@ interface Props {
   title: string;
   open?: boolean;
   name?: string;
+  class?: string;
+  style?: string;
 }
 
-const { title, open = false, name } = Astro.props;
+const { title, open = false, name, class: className, style } = Astro.props;
 ---
 
-<details class="acc-item" open={open} name={name}>
+<details class:list={['acc-item', className]} style={style} open={open} name={name}>
   <summary class="acc-item__summary">
     <h3 class="acc-item__title">{title}</h3>
     <span class="acc-item__icon" aria-hidden="true"></span>
@@ -93,7 +95,30 @@ const { title, open = false, name } = Astro.props;
     transform: rotate(0deg);
   }
 
+  /* Smooth open/close where supported (::details-content + interpolate-size);
+     other browsers keep the instant toggle. */
+  .acc-item {
+    interpolate-size: allow-keywords;
+  }
+
+  .acc-item::details-content {
+    block-size: 0;
+    overflow: clip;
+    transition:
+      block-size 320ms var(--ease-out),
+      content-visibility 320ms allow-discrete;
+  }
+
+  .acc-item[open]::details-content {
+    block-size: auto;
+  }
+
+  .acc-item:not([open]) .acc-item__body {
+    opacity: 0;
+  }
+
   .acc-item__body {
+    transition: opacity 320ms var(--ease-out);
     padding: 0 1.75rem 1.75rem;
     max-width: 42rem;
     color: var(--color-text-muted);
