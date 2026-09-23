@@ -65,6 +65,7 @@ const items = [
   .about__grid {
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+    grid-template-rows: auto 1fr;
     gap: 0 clamp(2.5rem, 1rem + 5vw, 6rem);
     align-items: start;
   }
@@ -111,6 +112,7 @@ const items = [
   @media (max-width: 960px) {
     .about__grid {
       grid-template-columns: 1fr;
+      grid-template-rows: none;
       row-gap: clamp(2.5rem, 1rem + 5vw, 6rem);
     }
 
