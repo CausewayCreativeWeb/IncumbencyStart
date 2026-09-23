@@ -23,7 +23,7 @@ const errorId = `${id}-error`;
     aria-describedby={error ? errorId : undefined}
     {...rest}
   />
-  {error && <p class="field__error" id={errorId}>{error}</p>}
+  <p class="field__error" id={errorId} hidden={!error}>{error}</p>
 </div>
 
 <style>
@@ -75,8 +75,13 @@ const errorId = `${id}-error`;
     box-shadow: 0 0 0 3px rgba(126, 232, 168, 0.12);
   }
 
-  .field--error .field__input {
+  .field--error .field__input,
+  .field--error .field__input:focus {
     border-color: var(--color-danger);
+  }
+
+  .field--error .field__input:focus {
+    box-shadow: 0 0 0 3px rgba(255, 155, 138, 0.15);
   }
 
   .field__error {

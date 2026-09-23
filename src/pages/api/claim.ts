@@ -131,6 +131,10 @@ export const POST: APIRoute = async ({ request }) => {
     return json({ error: 'Please fill in every field with a valid email address.' }, 400);
   }
 
+  if (claim.email.toLowerCase().split('@').pop() !== 'parliament.uk') {
+    return json({ error: "Please use your @parliament.uk email address. Other email addresses can't claim a bag." }, 400);
+  }
+
   if (!mobilePattern.test(claim.mobile)) {
     return json({ error: 'Please enter a valid mobile number.' }, 400);
   }
