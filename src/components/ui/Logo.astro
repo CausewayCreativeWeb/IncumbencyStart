@@ -1,0 +1,35 @@
+---
+interface Props {
+  href?: string;
+  size?: 'md' | 'lg';
+}
+
+const { href = '/', size = 'md' } = Astro.props;
+---
+
+<a class:list={['logo', `logo--${size}`]} href={href} aria-label="Incumbency.AI home">
+  <span class="logo__word">Incumbency</span><span class="logo__suffix">.AI</span>
+</a>
+
+<style>
+  .logo {
+    display: inline-flex;
+    align-items: baseline;
+    font-family: var(--font-title);
+    font-weight: 600;
+    letter-spacing: -0.03em;
+    color: var(--color-text);
+    text-decoration: none;
+    font-size: 1.1875rem;
+    line-height: 1;
+  }
+
+  .logo--lg {
+    font-size: 1.75rem;
+  }
+
+  .logo__suffix {
+    font-weight: 300;
+    color: var(--color-gold);
+  }
+</style>

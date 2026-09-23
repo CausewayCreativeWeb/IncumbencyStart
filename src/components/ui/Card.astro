@@ -1,0 +1,31 @@
+---
+interface Props {
+  variant?: 'glass' | 'solid';
+  class?: string;
+  id?: string;
+}
+
+const { variant = 'glass', class: className, id } = Astro.props;
+---
+
+<div id={id} class:list={['card', `card--${variant}`, className]}><slot /></div>
+
+<style>
+  .card {
+    border-radius: var(--radius-card);
+    border: 1px solid var(--color-border-strong);
+    padding: clamp(1.5rem, 1rem + 1.5vw, 2.25rem);
+  }
+
+  .card--glass {
+    background: var(--color-surface-glass);
+    -webkit-backdrop-filter: var(--blur-glass);
+    backdrop-filter: var(--blur-glass);
+    box-shadow: var(--shadow-card);
+  }
+
+  .card--solid {
+    background: var(--color-surface);
+    border-color: var(--color-border);
+  }
+</style>
