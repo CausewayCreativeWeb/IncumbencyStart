@@ -8,8 +8,10 @@ import Button from '../ui/Button.astro';
     <Field label="Full name" name="name" placeholder="Jane Okafor" autocomplete="name" required />
   </div>
   <Field label="Mobile" name="mobile" type="tel" placeholder="07700 000000" autocomplete="tel" inputmode="tel" required />
-  <Field label="MP's office" name="office" placeholder="MP's Office" autocomplete="organization" required />
-  <div class="span-2">
+  <div class="claim-form__office">
+    <Field label="MP's office" name="office" placeholder="MP's Office" autocomplete="organization" required />
+  </div>
+  <div class="span-2 claim-form__email">
     <Field label="Email" name="email" type="email" placeholder="jane.okafor@parliament.uk" autocomplete="email" required />
   </div>
   <div class="span-2 claim-form__submit">
@@ -83,6 +85,19 @@ import Button from '../ui/Button.astro';
 
     .span-2 {
       grid-column: auto;
+    }
+
+    /* Single column: email comes before MP's office. */
+    .claim-form__email {
+      order: 1;
+    }
+
+    .claim-form__office {
+      order: 2;
+    }
+
+    .claim-form__email ~ * {
+      order: 3;
     }
   }
 </style>

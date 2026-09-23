@@ -4,6 +4,7 @@ import Heading from '../ui/Heading.astro';
 import Button from '../ui/Button.astro';
 import Accordion from '../ui/Accordion.astro';
 import AccordionItem from '../ui/AccordionItem.astro';
+import AccreditationTags from '../ui/AccreditationTags.astro';
 
 const items = [
   {
@@ -35,20 +36,24 @@ const items = [
         Incumbency.ai is the AI-powered, human guided platform built for politicians teams. Every office gets its own
         private AI, backed by third-party testing, UK data hosting, and zero retention on everything you put in.
       </p>
-      <div class="about__cta">
-        <Button variant="outline" icon="arrow-up" href="#claim">Back to the form</Button>
-      </div>
+      <div class="about__tags"><AccreditationTags /></div>
     </div>
 
-    <Accordion>
-      {
-        items.map((item, index) => (
-          <AccordionItem title={item.title} open={index === 0} class="reveal">
-            <p>{item.body}</p>
-          </AccordionItem>
-        ))
-      }
-    </Accordion>
+    <div class="about__accordion">
+      <Accordion>
+        {
+          items.map((item, index) => (
+            <AccordionItem title={item.title} open={index === 0} class="reveal">
+              <p>{item.body}</p>
+            </AccordionItem>
+          ))
+        }
+      </Accordion>
+    </div>
+
+    <div class="about__cta reveal">
+      <Button variant="outline" icon="arrow-up" href="#claim">Back to the form</Button>
+    </div>
   </div>
 </section>
 
@@ -60,7 +65,7 @@ const items = [
   .about__grid {
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
-    gap: clamp(2.5rem, 1rem + 5vw, 6rem);
+    gap: 0 clamp(2.5rem, 1rem + 5vw, 6rem);
     align-items: start;
   }
 
@@ -82,17 +87,51 @@ const items = [
     line-height: 1.7;
   }
 
+  .about__intro {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .about__accordion {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+  }
+
+  /* Tags only show here on mobile; on desktop they sit in the hero. */
+  .about__tags {
+    display: none;
+  }
+
   .about__cta {
+    grid-column: 1;
+    grid-row: 2;
     margin-top: 2.5rem;
   }
 
   @media (max-width: 960px) {
     .about__grid {
       grid-template-columns: 1fr;
+      row-gap: clamp(2.5rem, 1rem + 5vw, 6rem);
+    }
+
+    .about__intro,
+    .about__accordion,
+    .about__cta {
+      grid-column: auto;
+      grid-row: auto;
+    }
+
+    .about__tags {
+      display: block;
+      margin-top: 0.25rem;
     }
 
     .about__cta {
-      margin-top: 1rem;
+      margin-top: 0;
+    }
+
+    .about__cta :global(.btn) {
+      width: 100%;
     }
   }
 </style>
