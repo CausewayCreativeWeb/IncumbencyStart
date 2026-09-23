@@ -28,7 +28,7 @@ const items = [
 
 <section class="about" aria-labelledby="about-title">
   <div class="wrap about__grid">
-    <div class="about__intro reveal">
+    <div class="about__intro reveal" style="--i: 0">
       <Eyebrow>What is Incumbency.AI?</Eyebrow>
       <Heading level={2} id="about-title">Your own private AI,<br /><strong>safe from day one.</strong></Heading>
       <Eyebrow as="p">AI-powered · Human-guided</Eyebrow>
@@ -43,7 +43,7 @@ const items = [
       <Accordion>
         {
           items.map((item, index) => (
-            <AccordionItem title={item.title} open={index === 0} class="reveal">
+            <AccordionItem title={item.title} open={index === 0} class="reveal" style={`--i: ${index + 1}`}>
               <p>{item.body}</p>
             </AccordionItem>
           ))
@@ -51,7 +51,7 @@ const items = [
       </Accordion>
     </div>
 
-    <div class="about__cta reveal">
+    <div class="about__cta reveal" style="--i: 1">
       <Button variant="outline" icon="arrow-up" href="#claim">Back to the form</Button>
     </div>
   </div>
@@ -65,6 +65,7 @@ const items = [
   .about__grid {
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+    grid-template-rows: auto 1fr;
     gap: 0 clamp(2.5rem, 1rem + 5vw, 6rem);
     align-items: start;
   }
@@ -111,6 +112,7 @@ const items = [
   @media (max-width: 960px) {
     .about__grid {
       grid-template-columns: 1fr;
+      grid-template-rows: none;
       row-gap: clamp(2.5rem, 1rem + 5vw, 6rem);
     }
 
