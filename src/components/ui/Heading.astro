@@ -1,0 +1,46 @@
+---
+interface Props {
+  level?: 1 | 2 | 3 | 4;
+  size?: 'display' | 'h2' | 'h3';
+  class?: string;
+  id?: string;
+  style?: string;
+}
+
+const { level = 2, size, class: className, id, style } = Astro.props;
+const Tag = `h${level}` as 'h1' | 'h2' | 'h3' | 'h4';
+const resolvedSize = size ?? (level === 1 ? 'display' : level === 2 ? 'h2' : 'h3');
+---
+
+<Tag id={id} style={style} class:list={['heading', `heading--${resolvedSize}`, className]}><slot /></Tag>
+
+<style>
+  .heading {
+    font-family: var(--font-title);
+    color: var(--color-text);
+    text-wrap: balance;
+  }
+
+  .heading--display {
+    font-size: var(--text-display);
+    font-weight: 300;
+    line-height: 1.04;
+  }
+
+  .heading--h2 {
+    font-size: var(--text-h2);
+    font-weight: 300;
+    line-height: 1.1;
+  }
+
+  .heading--h3 {
+    font-size: var(--text-h3);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1.25;
+  }
+
+  .heading :global(strong) {
+    font-weight: 600;
+  }
+</style>

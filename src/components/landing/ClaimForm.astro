@@ -1,0 +1,182 @@
+---
+import Field from '../ui/Field.astro';
+import Button from '../ui/Button.astro';
+---
+
+<form id="claim-form" class="claim-form" novalidate>
+  <div class="span-2">
+    <Field label="Full name" name="name" placeholder="Jane Okafor" autocomplete="name" required />
+  </div>
+  <Field label="Mobile" name="mobile" type="tel" placeholder="07700 000000" autocomplete="tel" inputmode="tel" required />
+  <Field label="MP's office" name="office" placeholder="MP's Office" autocomplete="organization" required />
+  <div class="span-2">
+    <Field label="Email" name="email" type="email" placeholder="jane.okafor@parliament.uk" autocomplete="email" required />
+  </div>
+  <div class="span-2 claim-form__submit">
+    <Button type="submit" icon="arrow-right" block>Get my bag</Button>
+  </div>
+  <p class="span-2 claim-form__note">
+    By claiming, you agree to hear from Incumbency.AI about your bag and our platform. Unsubscribe any time.
+  </p>
+  <p id="claim-status" class="span-2 claim-form__status" role="status" aria-live="polite"></p>
+</form>
+
+<style>
+  .claim-form {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.5rem 1rem;
+  }
+
+  .span-2 {
+    grid-column: span 2;
+  }
+
+  .claim-form__submit {
+    margin-top: 0.5rem;
+  }
+
+  .claim-form__note {
+    font-size: 0.8125rem;
+    line-height: 1.5;
+    color: var(--color-text-subtle);
+    margin-top: -0.5rem;
+  }
+
+  .claim-form__status {
+    font-family: var(--font-mono);
+    font-size: var(--text-small);
+    color: var(--color-accent);
+    margin-top: -0.75rem;
+  }
+
+  .claim-form__status:empty {
+    display: none;
+  }
+
+  .claim-form__status.is-error {
+    color: var(--color-danger);
+  }
+
+  /* Success state: the submit button briefly confirms the claim. */
+  @keyframes claimed-pop {
+    40% {
+      transform: scale(1.02);
+    }
+  }
+
+  .claim-form :global(.btn.is-success) {
+    opacity: 1;
+    cursor: default;
+    animation: claimed-pop 420ms var(--ease-out);
+    box-shadow: var(--glow-accent);
+  }
+
+  .claim-form :global(.btn.is-success .btn__icon) {
+    transform: none;
+  }
+
+  @media (max-width: 520px) {
+    .claim-form {
+      grid-template-columns: 1fr;
+    }
+
+    .span-2 {
+      grid-column: auto;
+    }
+  }
+</style>
+
+<script>
+  import { CLAIM_FIELDS, validateClaim, type ClaimErrors, type ClaimField } from '../../lib/claim-validation';
+
+  const form = document.getElementById('claim-form') as HTMLFormElement | null;
+  const status = document.getElementById('claim-status');
+
+  function input(name: ClaimField) {
+    return form?.querySelector<HTMLInputElement>(`input[name="${name}"]`) ?? null;
+  }
+
+  function setFieldError(name: ClaimField, message: string | null) {
+    const el = input(name);
+    const error = el ? document.getElementById(`${el.id}-error`) : null;
+    if (!el || !error) return;
+    el.closest('.field')?.classList.toggle('field--error', Boolean(message));
+    error.textContent = message ?? '';
+    error.hidden = !message;
+    if (message) {
+      el.setAttribute('aria-invalid', 'true');
+      el.setAttribute('aria-describedby', error.id);
+    } else {
+      el.removeAttribute('aria-invalid');
+      el.removeAttribute('aria-describedby');
+    }
+  }
+
+  function showErrors(errors: ClaimErrors) {
+    CLAIM_FIELDS.forEach((name) => setFieldError(name, errors[name] ?? null));
+    const first = CLAIM_FIELDS.find((name) => errors[name]);
+    if (first) input(first)?.focus();
+  }
+
+  CLAIM_FIELDS.forEach((name) => input(name)?.addEventListener('input', () => setFieldError(name, null)));
+
+  form?.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    if (!status) return;
+
+    const button = form.querySelector('button[type="submit"]');
+    const label = button?.querySelector('.btn__label');
+    const icon = button?.querySelector('.btn__icon');
+    const originalLabel = label?.textContent ?? '';
+    const originalIcon = icon?.textContent ?? '';
+    let succeeded = false;
+
+    status.classList.remove('is-error');
+    status.textContent = '';
+
+    const formData = new FormData(form);
+    const { claim, errors } = validateClaim(Object.fromEntries(CLAIM_FIELDS.map((name) => [name, formData.get(name)])));
+    showErrors(errors);
+    if (Object.keys(errors).length > 0) return;
+
+    button?.setAttribute('disabled', 'true');
+    if (label) label.textContent = 'Sending…';
+
+    try {
+      const response = await fetch('/api/claim', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(claim),
+      });
+      const data = await response.json();
+
+      if (!response.ok) {
+        if (data.fields) showErrors(data.fields);
+        throw new Error(data.fields ? '' : (data.error ?? 'Something went wrong.'));
+      }
+
+      succeeded = true;
+      status.textContent = "Thanks — your bag is claimed. We'll be in touch shortly.";
+      form.reset();
+      button?.classList.add('is-success');
+      if (label) label.textContent = 'Claimed';
+      if (icon) icon.textContent = '✓';
+      window.setTimeout(() => {
+        button?.classList.remove('is-success');
+        button?.removeAttribute('disabled');
+        if (label) label.textContent = originalLabel;
+        if (icon) icon.textContent = originalIcon;
+      }, 4000);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Something went wrong.';
+      status.classList.toggle('is-error', Boolean(message));
+      status.textContent = message;
+    } finally {
+      if (!succeeded) {
+        button?.removeAttribute('disabled');
+        if (label) label.textContent = originalLabel;
+      }
+    }
+  });
+</script>

@@ -1,10 +1,15 @@
-# IncumbencyStart
+# Incumbency.AI — Claim your bag
 
-An Astro starter for a one-page marketing site with:
+Astro landing page where Parliamentary staffers claim a free anti-theft laptop bag from Incumbency.AI.
 
-- **Resend** — a contact form that sends email via a serverless API route (`src/pages/api/contact.ts`).
-- **Mailchimp** — a newsletter signup form that adds subscribers to a Mailchimp audience via a serverless API route (`src/pages/api/subscribe.ts`).
-- **Vercel Web Analytics** — enabled through the `@astrojs/vercel` adapter, so pageviews are tracked automatically once deployed on Vercel.
+- **Claim form** — posts to `src/pages/api/claim.ts`, which:
+  - emails the claim (name, mobile, MP's office, email) to `CONTACT_TO_EMAIL` via **Resend**, and
+  - adds or updates the claimant in your **Mailchimp** audience, tagged `bag-claim`.
+  The claim succeeds as long as the Resend email sends; Mailchimp errors are logged server-side.
+- **Vercel Web Analytics** — enabled through the `@astrojs/vercel` adapter.
+- **Style guide** — design tokens and components at `/styleguide` (noindex).
+
+Fonts are self-hosted from `public/fonts/`: Sora (titles), IBM Plex Sans (body) and IBM Plex Mono (buttons, labels, data), all under the SIL Open Font License.
 
 ## Getting started
 
@@ -22,29 +27,34 @@ Fill in `.env` with your own keys (see below), then open http://localhost:4321.
 | --- | --- |
 | `RESEND_API_KEY` | API key from [resend.com/api-keys](https://resend.com/api-keys). |
 | `RESEND_FROM_EMAIL` | Verified "from" address, e.g. `Website <hello@yourdomain.com>`. |
-| `CONTACT_TO_EMAIL` | Inbox that should receive contact-form submissions. |
+| `CONTACT_TO_EMAIL` | Inbox that should receive bag claims. |
 | `MAILCHIMP_API_KEY` | API key from your Mailchimp account, e.g. `xxxxxxxx-us21`. |
 | `MAILCHIMP_SERVER_PREFIX` | The data-center suffix on your API key, e.g. `us21`. |
 | `MAILCHIMP_AUDIENCE_ID` | The audience/list ID subscribers should be added to. |
+
+### Mailchimp audience fields
+
+The claim route sends these merge fields: `FNAME`, `LNAME`, `PHONE` and `OFFICE`. `OFFICE` isn't a Mailchimp default, so create a text field with the merge tag `OFFICE` in **Audience → Settings → Audience fields and \*|MERGE|\* tags**. Mailchimp rejects the signup if a field is missing.
 
 ## Project structure
 
 ```
 src/
   components/
-    Header.astro
-    Hero.astro
-    Features.astro
-    NewsletterForm.astro   # posts to /api/subscribe
-    ContactForm.astro      # posts to /api/contact
-    Footer.astro
+    ui/                    # design-system components (Button, Field, Card, Accordion…)
+    landing/               # page sections (ClaimHero, ClaimForm, AboutSection, SiteFooter…)
   layouts/
     Layout.astro
   pages/
-    index.astro            # the one-pager
+    index.astro            # the landing page
+    styleguide.astro       # design tokens & component reference
     api/
-      contact.ts           # Resend
-      subscribe.ts         # Mailchimp
+      claim.ts             # Resend email + Mailchimp signup
+  styles/
+    global.css             # fonts, tokens, base styles
+public/
+  fonts/                   # WOFF2 fonts + OFL licences
+  images/bokeh-bg.webp     # hero background
 ```
 
 ## Deploying to Vercel

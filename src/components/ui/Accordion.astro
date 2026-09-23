@@ -1,0 +1,19 @@
+---
+interface Props {
+  name?: string;
+}
+
+const { name } = Astro.props;
+---
+
+<div class="accordion" data-accordion={name}>
+  <slot />
+</div>
+
+<style>
+  .accordion {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+</style>
