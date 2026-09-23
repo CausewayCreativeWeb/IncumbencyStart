@@ -1,0 +1,98 @@
+---
+import Eyebrow from '../ui/Eyebrow.astro';
+import Heading from '../ui/Heading.astro';
+import Button from '../ui/Button.astro';
+import Accordion from '../ui/Accordion.astro';
+import AccordionItem from '../ui/AccordionItem.astro';
+
+const items = [
+  {
+    title: 'UK-held. Never retained.',
+    body: 'All of your data is held in the UK. Our AI never retains data or uses it to train models — each office has its own private AI, drawing only on its own knowledge base.',
+  },
+  {
+    title: 'Built to support teams, not replace them',
+    body: 'Cases are automatically verified, tagged, triaged, and routed to the right staff member with AI-assisted draft responses ready for review and sending — all drafted correspondence reviewed and sent in seconds, not hours.',
+  },
+  {
+    title: 'The platform is free',
+    body: 'Incumbency.ai replaces your CRM — for free. No contract, no seat fees, no catch. You only pay for the AI usage that does the work for you, not for handing you a tool and leaving you to it.',
+  },
+  {
+    title: 'Tested, not self-declared',
+    body: 'CREST penetration tested by accredited assessors across infrastructure, application and data security, and Cyber Essentials Plus certified — government-backed, independently audited rather than self-assessed.',
+  },
+];
+---
+
+<section class="about" aria-labelledby="about-title">
+  <div class="wrap about__grid">
+    <div class="about__intro">
+      <Eyebrow>What is Incumbency.AI?</Eyebrow>
+      <Heading level={2} id="about-title">Your own private AI,<br /><strong>safe from day one.</strong></Heading>
+      <Eyebrow as="p">AI-powered · Human-guided</Eyebrow>
+      <p class="about__copy">
+        Incumbency.ai is the AI-powered, human guided platform built for politicians teams. Every office gets its own
+        private AI, backed by third-party testing, UK data hosting, and zero retention on everything you put in.
+      </p>
+      <div class="about__cta">
+        <Button variant="outline" icon="arrow-up" href="#claim">Back to the form</Button>
+      </div>
+    </div>
+
+    <Accordion>
+      {
+        items.map((item, index) => (
+          <AccordionItem title={item.title} open={index === 0}>
+            <p>{item.body}</p>
+          </AccordionItem>
+        ))
+      }
+    </Accordion>
+  </div>
+</section>
+
+<style>
+  .about {
+    padding-block: clamp(4rem, 3rem + 4vw, 7rem);
+  }
+
+  .about__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+    gap: clamp(2.5rem, 1rem + 5vw, 6rem);
+    align-items: start;
+  }
+
+  .about__intro {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1.25rem;
+    padding-top: 0.25rem;
+  }
+
+  .about__intro :global(.heading) {
+    margin-bottom: 0.25rem;
+  }
+
+  .about__copy {
+    color: var(--color-text-muted);
+    max-width: 38rem;
+    line-height: 1.7;
+  }
+
+  .about__cta {
+    margin-top: 2.5rem;
+  }
+
+  @media (max-width: 960px) {
+    .about__grid {
+      grid-template-columns: 1fr;
+    }
+
+    .about__cta {
+      margin-top: 1rem;
+    }
+  }
+</style>

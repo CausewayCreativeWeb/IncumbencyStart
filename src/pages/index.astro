@@ -1,21 +1,17 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import Header from '../components/Header.astro';
-import Hero from '../components/Hero.astro';
-import Features from '../components/Features.astro';
-import NewsletterForm from '../components/NewsletterForm.astro';
-import ContactForm from '../components/ContactForm.astro';
-import Footer from '../components/Footer.astro';
+import ClaimHero from '../components/landing/ClaimHero.astro';
+import AboutSection from '../components/landing/AboutSection.astro';
+import SiteFooter from '../components/landing/SiteFooter.astro';
 ---
 
 <Layout
-  title="IncumbencyStart — Astro one-pager starter"
-  description="An Astro starter for one-page sites with Resend email, Mailchimp signups, and Vercel Analytics."
+  title="Incumbency.AI — Claim your anti-theft laptop bag"
+  description="Incumbency.AI is giving away anti-theft laptop bags to Parliamentary staffers to protect physical data security. Claim yours today."
 >
-  <Header />
-  <Hero />
-  <Features />
-  <NewsletterForm />
-  <ContactForm />
-  <Footer />
+  <main>
+    <ClaimHero />
+    <AboutSection />
+  </main>
+  <SiteFooter />
 </Layout>
