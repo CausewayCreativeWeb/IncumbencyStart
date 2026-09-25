@@ -4,6 +4,7 @@
 // accepted analytics cookies.
 import { randomInt } from 'node:crypto';
 import { ANALYTICS_ID } from './site';
+import { env } from './server-env';
 
 /** GA identifiers the browser passes along, only for visitors who accepted cookies. */
 export type AnalyticsIds = { clientId?: string; sessionId?: string };
@@ -27,9 +28,10 @@ function anonymousClientId() {
   return `${randomInt(1_000_000_000, 2_000_000_000)}.${Math.floor(Date.now() / 1000)}`;
 }
 
-export async function recordClaimConversion(ids: AnalyticsIds) {
-  const { GA_API_SECRET } = import.meta.env;
-  if (!GA_API_SECRET) return;
+/** Sends the conversion; resolves 'skipped' when GA_API_SECRET isn't set. */
+export async function recordClaimConversion(ids: AnalyticsIds): Promise<'sent' | 'skipped'> {
+  const GA_API_SECRET = env('GA_API_SECRET');
+  if (!GA_API_SECRET) return 'skipped';
 
   const url = `https://www.google-analytics.com/mp/collect?measurement_id=${ANALYTICS_ID}&api_secret=${encodeURIComponent(GA_API_SECRET)}`;
   const response = await fetch(url, {
@@ -54,6 +56,8 @@ export async function recordClaimConversion(ids: AnalyticsIds) {
   });
 
   if (!response.ok) {
-    throw new Error(`Measurement Protocol responded with ${response.status}.`);
+    const text = await response.text().catch(() => '');
+    throw new Error(`Measurement Protocol responded with HTTP ${response.status}: ${text.slice(0, 300)}`);
   }
+  return 'sent';
 }
