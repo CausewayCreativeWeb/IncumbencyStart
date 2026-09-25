@@ -104,12 +104,40 @@ import Button from '../ui/Button.astro';
 
 <script>
   import { CLAIM_FIELDS, validateClaim, type ClaimErrors, type ClaimField } from '../../lib/claim-validation';
+  import { ANALYTICS_ID, CONSENT_KEY } from '../../lib/site';
 
   const form = document.getElementById('claim-form') as HTMLFormElement | null;
   const status = document.getElementById('claim-status');
 
   function input(name: ClaimField) {
     return form?.querySelector<HTMLInputElement>(`input[name="${name}"]`) ?? null;
+  }
+
+  // For visitors who accepted analytics cookies, pass their GA ids along so the
+  // server can tie the claim to their visit. Everyone else sends none and is
+  // counted anonymously.
+  function analyticsGet(field: 'client_id' | 'session_id') {
+    const w = window as any;
+    return new Promise<string | undefined>((resolve) => {
+      const timer = window.setTimeout(() => resolve(undefined), 500);
+      w.gtag('get', ANALYTICS_ID, field, (value: unknown) => {
+        window.clearTimeout(timer);
+        resolve(value == null ? undefined : String(value));
+      });
+    });
+  }
+
+  async function analyticsIds() {
+    const w = window as any;
+    let consented = false;
+    try {
+      consented = localStorage.getItem(CONSENT_KEY) === 'granted';
+    } catch {
+      // Storage blocked: treat as no consent.
+    }
+    if (!consented || !w.analyticsLoaded || typeof w.gtag !== 'function') return undefined;
+    const [clientId, sessionId] = await Promise.all([analyticsGet('client_id'), analyticsGet('session_id')]);
+    return { clientId, sessionId };
   }
 
   function setFieldError(name: ClaimField, message: string | null) {
@@ -162,7 +190,7 @@ import Button from '../ui/Button.astro';
       const response = await fetch('/api/claim', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(claim),
+        body: JSON.stringify({ ...claim, analytics: await analyticsIds() }),
       });
       const data = await response.json();
 

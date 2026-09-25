@@ -2,6 +2,7 @@ import type { APIRoute } from 'astro';
 import { createHash } from 'node:crypto';
 import { Resend } from 'resend';
 import { CLAIM_FIELDS, validateClaim, type Claim } from '../../lib/claim-validation';
+import { parseAnalyticsIds, recordClaimConversion } from '../../lib/analytics-server';
 
 export const prerender = false;
 
@@ -42,7 +43,9 @@ async function addToMailchimp(claim: Claim) {
     'Content-Type': 'application/json',
     Authorization: `Basic ${Buffer.from(`anystring:${MAILCHIMP_API_KEY}`).toString('base64')}`,
   };
-  const [firstName, ...rest] = claim.name.split(/\s+/);
+  // Split on the first space; a single name is repeated as the last name.
+  const [firstName, ...rest] = claim.name.trim().split(/\s+/);
+  const lastName = rest.join(' ') || firstName;
 
   const memberResponse = await fetch(base, {
     method: 'PUT',
@@ -52,7 +55,7 @@ async function addToMailchimp(claim: Claim) {
       status_if_new: 'subscribed',
       merge_fields: {
         FNAME: firstName,
-        LNAME: rest.join(' '),
+        LNAME: lastName,
         PHONE: claim.mobile,
         OFFICE: claim.office,
       },
@@ -128,6 +131,13 @@ export const POST: APIRoute = async ({ request }) => {
   if (emailResult.status === 'rejected') {
     console.error('Resend email failed for bag claim:', emailResult.reason);
     return json({ error: 'Could not submit your claim. Please try again later.' }, 502);
+  }
+
+  // Reporting the conversion must never fail the claim itself.
+  try {
+    await recordClaimConversion(parseAnalyticsIds(body.analytics));
+  } catch (error) {
+    console.error('Google Analytics conversion failed for bag claim:', error);
   }
 
   return json({ success: true }, 200);
