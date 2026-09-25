@@ -8,6 +8,7 @@ interface ImportMetaEnv {
   readonly MAILCHIMP_API_KEY: string;
   readonly MAILCHIMP_SERVER_PREFIX: string;
   readonly MAILCHIMP_AUDIENCE_ID: string;
+  readonly GA_API_SECRET?: string;
 }
 
 interface ImportMeta {

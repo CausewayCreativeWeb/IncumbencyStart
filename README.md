@@ -33,6 +33,8 @@ Fill in `.env` with your own keys (see below), then open http://localhost:4321.
 | `MAILCHIMP_AUDIENCE_ID` | The audience/list ID subscribers should be added to. |
 | `GA_API_SECRET` | Google Analytics Measurement Protocol secret (**Admin → Data streams → your web stream → Measurement Protocol API secrets**). Each successful claim is sent to GA as a `generate_lead` event from the server, with no personal details, so it's counted even when a visitor declines cookies. Optional: without it no conversion is recorded. |
 
+These are read on each request, not frozen in at build time. Vercel only applies changes to new deployments, so redeploy once after adding or changing them. Claim logs in Vercel are prefixed `[claim]` and say exactly which variable is missing or what Mailchimp/Resend returned.
+
 ### Mailchimp audience fields
 
 The claim route sends these merge fields: `FNAME`, `LNAME`, `PHONE` and `OFFICE`. `OFFICE` isn't a Mailchimp default, so create a text field with the merge tag `OFFICE` in **Audience → Settings → Audience fields and \*|MERGE|\* tags**. Mailchimp rejects the signup if a field is missing.
