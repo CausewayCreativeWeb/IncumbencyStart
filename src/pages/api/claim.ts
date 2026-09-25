@@ -2,6 +2,7 @@ import type { APIRoute } from 'astro';
 import { createHash } from 'node:crypto';
 import { Resend } from 'resend';
 import { CLAIM_FIELDS, validateClaim, type Claim } from '../../lib/claim-validation';
+import { parseAnalyticsIds, recordClaimConversion } from '../../lib/analytics-server';
 
 export const prerender = false;
 
@@ -128,6 +129,13 @@ export const POST: APIRoute = async ({ request }) => {
   if (emailResult.status === 'rejected') {
     console.error('Resend email failed for bag claim:', emailResult.reason);
     return json({ error: 'Could not submit your claim. Please try again later.' }, 502);
+  }
+
+  // Reporting the conversion must never fail the claim itself.
+  try {
+    await recordClaimConversion(parseAnalyticsIds(body.analytics));
+  } catch (error) {
+    console.error('Google Analytics conversion failed for bag claim:', error);
   }
 
   return json({ success: true }, 200);

@@ -31,6 +31,7 @@ Fill in `.env` with your own keys (see below), then open http://localhost:4321.
 | `MAILCHIMP_API_KEY` | API key from your Mailchimp account, e.g. `xxxxxxxx-us21`. |
 | `MAILCHIMP_SERVER_PREFIX` | The data-center suffix on your API key, e.g. `us21`. |
 | `MAILCHIMP_AUDIENCE_ID` | The audience/list ID subscribers should be added to. |
+| `GA_API_SECRET` | Google Analytics Measurement Protocol secret (**Admin → Data streams → your web stream → Measurement Protocol API secrets**). Each successful claim is sent to GA as a `generate_lead` event from the server, with no personal details, so it's counted even when a visitor declines cookies. Optional: without it no conversion is recorded. |
 
 ### Mailchimp audience fields
 
